@@ -37,14 +37,17 @@ namespace tools {
         return (isalnum(c) || (c == '+') || (c == '/'));
     }
 
-    std::string Base64Encoder::encode(const unsigned char * pData, unsigned int &pInputLength) const {
+
+    std::string Base64Encoder::encode(const unsigned char * pData, const unsigned int &pInputLength) const {
+        unsigned int lInputLength = pInputLength;
+
         std::string lReturn;
         int i = 0, j = 0;
 
         unsigned char pCharArray3[3];
         unsigned char pCharArray4[4];
 
-        while (pInputLength--) {
+        while (lInputLength--) {
             pCharArray3[i++] = *(pData++);
 
             if (i == 3) {
@@ -78,6 +81,13 @@ namespace tools {
         }
 
         return lReturn;
+    }
+
+    std::string Base64Encoder::encode(const std::string &pStr) const {
+        const unsigned char * lData = reinterpret_cast<const unsigned char *>(pStr.c_str());
+        unsigned int lInputLength = pStr.length();
+
+        return encode(lData, lInputLength);
     }
 
     std::string Base64Encoder::decode(std::string const& encoded_string) const {

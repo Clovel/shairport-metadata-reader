@@ -24,7 +24,8 @@ namespace tools {
 
             /* Encode/Decode */
         
-            std::string encode(unsigned char const* pData, unsigned int &pInputLength) const;
+            std::string encode(const unsigned char * pData, const unsigned int &pInputLength) const;
+            std::string encode(const std::string &pStr) const;
             std::string decode(std::string const& encoded_string) const;
 
         private:
