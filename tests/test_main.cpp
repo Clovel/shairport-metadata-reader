@@ -20,12 +20,11 @@ void print_usage(void) {
 
 /* Test functions -------------------------------------- */
 int test_base64_encode_decode(void) {
-    std::string lStr = "Pack my box with five dozen liquor jugs"; // According to Wikipedia, this one is used on NASA’s Space Shuttle. (32 letters)
-    unsigned int lStrSize = lStr.length();
+    const std::string lStr = "Pack my box with five dozen liquor jugs"; // According to Wikipedia, this one is used on NASA’s Space Shuttle. (32 letters)
 
     tools::Base64Encoder lEncoder = tools::Base64Encoder::instance();
 
-    std::string lEncodedStr = lEncoder.encode(reinterpret_cast<const unsigned char *>(lStr.c_str()), lStrSize);
+    std::string lEncodedStr = lEncoder.encode(reinterpret_cast<const unsigned char *>(lStr.c_str()), lStr.length());
     std::cout << "[INFO ] Encoded string is " << lEncodedStr << std::endl;
 
     std::string lDecodedStr = lEncoder.decode(lEncodedStr);
@@ -37,17 +36,46 @@ int test_base64_encode_decode(void) {
 }
 
 int test_base64_decode_encode(void) {
-    /* TODO */
+    const std::string lStr = "UGFjayBteSBib3ggd2l0aCBmaXZlIGRvemVuIGxpcXVvciBqdWdz"; // "Pack my box with five dozen liquor jugs", encoded w/ https://www.base64encode.org
+
+    tools::Base64Encoder lEncoder = tools::Base64Encoder::instance();
+
+    std::string lDecodedStr = lEncoder.decode(lStr);
+    std::cout << "[INFO ] Decoded string is " << lDecodedStr << std::endl;
+
+    std::string lEncodedStr = lEncoder.encode(reinterpret_cast<const unsigned char *>(lDecodedStr.c_str()), lDecodedStr.length());
+    std::cout << "[INFO ] Encoded string is " << lEncodedStr << std::endl;
+
+    assert(lStr == lEncodedStr);
+
     return 0;
 }
 
 int test_base64_decode(void) {
-    /* TODO */
+    const std::string lStr = "UGFjayBteSBib3ggd2l0aCBmaXZlIGRvemVuIGxpcXVvciBqdWdz"; // "Pack my box with five dozen liquor jugs", encoded w/ https://www.base64encode.org
+    const std::string lExpectedStr = "Pack my box with five dozen liquor jugs";
+
+    tools::Base64Encoder lEncoder = tools::Base64Encoder::instance();
+
+    std::string lDecodedStr = lEncoder.decode(lStr);
+    std::cout << "[INFO ] Decoded string is " << lDecodedStr << std::endl;
+
+    assert(lExpectedStr == lDecodedStr);
+
     return 0;
 }
 
 int test_base64_encode(void) {
-    /* TODO */
+    const std::string lStr = "Pack my box with five dozen liquor jugs";
+    const std::string lExpectedStr = "UGFjayBteSBib3ggd2l0aCBmaXZlIGRvemVuIGxpcXVvciBqdWdz"; // "Pack my box with five dozen liquor jugs", encoded w/ https://www.base64encode.org
+
+    tools::Base64Encoder lEncoder = tools::Base64Encoder::instance();
+
+    std::string lEncodedStr = lEncoder.encode(reinterpret_cast<const unsigned char *>(lStr.c_str()), lStr.length());
+    std::cout << "[INFO ] Decoded string is " << lEncodedStr << std::endl;
+
+    assert(lExpectedStr == lEncodedStr);
+
     return 0;
 }
 
