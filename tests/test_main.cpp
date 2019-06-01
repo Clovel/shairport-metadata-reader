@@ -72,7 +72,12 @@ int test_base64_encode(void) {
     tools::Base64Encoder lEncoder = tools::Base64Encoder::instance();
 
     std::string lEncodedStr = lEncoder.encode(reinterpret_cast<const unsigned char *>(lStr.c_str()), lStr.length());
-    std::cout << "[INFO ] Decoded string is " << lEncodedStr << std::endl;
+    std::cout << "[INFO ] Encoded string is " << lEncodedStr << std::endl;
+
+    assert(lExpectedStr == lEncodedStr);
+
+    lEncodedStr = lEncoder.encode(lStr);
+    std::cout << "[INFO ] Encoded string is " << lEncodedStr << std::endl;
 
     assert(lExpectedStr == lEncodedStr);
 
