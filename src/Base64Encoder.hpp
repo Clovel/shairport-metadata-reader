@@ -33,8 +33,5 @@ namespace tools {
 
             static const std::string sEncodingTable;
             static const int sModTable[3];
-
-            char mEncodingTable[64];
-            int mDecodingTable[256]; /* TODO : Magic number, Why 256 ? */
     };
 }
