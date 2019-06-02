@@ -14,6 +14,22 @@
 #include <cstring>
 #include <cstdint>
 
+/* Typedefs -------------------------------------------- */
+typedef enum _metaDataCodes {
+    MD_CODE_PERSISTENT_ID = 'mper',
+    MD_CODE_URL = 'asul',
+    MD_CODE_ALBUM_NAME = 'asal',
+    MD_CODE_ARTIST = 'asar',
+    MD_CODE_COMMENT = 'ascm',
+    MD_CODE_GENRE = 'asgn',
+    MD_CODE_TITLE = 'minm',
+    MD_CODE_COMPOSER = 'ascp',
+    MD_CODE_FILE_TYPE = 'asdt',
+    MD_CODE_SORT_AS = 'assn',
+    MD_CODE_PICTURE = 'PICT',
+    MD_CODE_CLIENT_IP = 'clip'
+} MetaDataCode_t;
+
 /* Class implementation -------------------------------- */
 namespace metadata {
     MetaDataReader::MetaDataReader(FILE * const mFile) : 
@@ -160,6 +176,81 @@ namespace metadata {
             std::cout << "[ERROR] There is no Base64 data !" << std::endl;
             return false;
         }
+
+        return true;
+    }
+
+    bool MetaDataReader::processTags(MetaData * const pMetaData, const std::string &pPayload) {
+        switch(pMetaData->code()) {
+            case MD_CODE_PERSISTENT_ID: 
+                {
+                    uint32_t v = ntohl(*(uint32_t *)pPayload.c_str());
+                    pMetaData->setPersistentId(v);
+                    printf("Persistent ID: \"%u\".\n", v);
+                }
+                break;
+            case MD_CODE_URL:
+                pMetaData->setURL(pPayload);
+                printf("URL: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_ALBUM_NAME:
+                pMetaData->setAlbumName(pPayload);
+                printf("Album Name: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_ARTIST:
+                pMetaData->setArtist(pPayload);
+                printf("Artist: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_COMMENT:
+                pMetaData->setComment(pPayload);
+                printf("Comment: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_GENRE:
+                pMetaData->setGenre(pPayload);
+                printf("Genre: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_TITLE:
+                pMetaData->setTitle(pPayload);
+                printf("Title: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_COMPOSER:
+                pMetaData->setComposer(pPayload);
+                printf("Composer: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_FILE_TYPE:
+                pMetaData->setFileType(pPayload);
+                printf("File kind: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_SORT_AS:
+                pMetaData->setSortAs(pPayload);
+                printf("Sort as: \"%s\".\n", pPayload.c_str());
+                break;
+            case MD_CODE_PICTURE:
+                /* TODO : What do we do here ? */
+                printf("Picture received, length %u bytes.\n", pMetaData->length());
+                break;
+            case MD_CODE_CLIENT_IP:
+                pMetaData->setClientIP(pPayload);
+                printf("Client's IP: \"%s\".\n", pPayload.c_str());
+                break;
+            default:
+                /* TODO : What do we do here ? */
+                if (pMetaData->type() == 'ssnc') {
+                    char typestring[5];
+                    *(uint32_t *)typestring = htonl(pMetaData->type());
+                    typestring[4]           = 0;
+                    char codestring[5];
+                    *(uint32_t *)codestring = htonl(pMetaData->code());
+                    codestring[4]           = 0;
+                    printf("\"%s\" \"%s\": \"%s\".\n", typestring, codestring, pPayload.c_str());
+                } else {
+                    /* TODO : What do we do here ? */
+                    std::cout << "[DEBUG] Unknown metadata code : " << pMetaData->code() << std::endl;
+                    return false; /* TODO : Is this the expected behaviour ? */
+                }
+        }
+
+        return true;
     }
 
     bool MetaDataReader::readEndTag(void) const {

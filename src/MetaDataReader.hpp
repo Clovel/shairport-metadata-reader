@@ -33,11 +33,12 @@ namespace metadata {
 
             bool readHeader(MetaData * const pMetaData);
             bool readBase64Data(const MetaData * const pMetaData, std::string &pDecodedData);
+            bool processTags(MetaData * const pMetaData, const std::string &pPayload);
 
         private:
             bool readEndTag(void) const;
             bool checkBase64EndSection(void) const;
-            
+
             FILE *mFile;
 
             tools::Base64Encoder *mBase64Encoder;
