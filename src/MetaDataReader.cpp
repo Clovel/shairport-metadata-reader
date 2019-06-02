@@ -7,6 +7,7 @@
 #include "MetaData.hpp"
 
 #include "Base64Encoder.hpp"
+#include "LiteralConverter.hpp"
 
 #include <iostream>
 
@@ -262,7 +263,7 @@ namespace metadata {
                     printf("\"%s\" \"%s\": \"%s\".\n", typestring, codestring, pPayload.c_str());
                 } else {
                     /* TODO : What do we do here ? */
-                    std::cout << "[DEBUG] Unknown metadata code : " << pMetaData->code() << std::endl;
+                    std::cout << "[DEBUG] Unknown metadata code : " << pMetaData->code() << " (" << tools::LiteralConverter::multiCharLiteralToString(pMetaData->code()) << ")" << std::endl;
                     return false; /* TODO : Is this the expected behaviour ? */
                 }
         }
