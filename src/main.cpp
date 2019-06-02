@@ -66,7 +66,7 @@ int main(const int argc, const char * const * const argv) {
         if(lMetaDataReader.readHeader(&lMetaData)) {
             /* Got header */
 
-            std::cout << "[DEBUG] code : " << lMetaData.code() << ", type : " << lMetaData.type() << ", length : " << lMetaData.length() << std::endl;
+            std::cout << "[DEBUG] code : " << tools::LiteralConverter::multiCharLiteralToString(lMetaData.code()) << ", type : " << tools::LiteralConverter::multiCharLiteralToString(lMetaData.type()) << ", length : " << lMetaData.length() << std::endl;
 
             std::string lDecodedB64Data;
             lBase64ReadSuccess = lMetaDataReader.readBase64Data(&lMetaData, lDecodedB64Data);
