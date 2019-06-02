@@ -1,5 +1,6 @@
 /* Includes -------------------------------------------- */
 #include "Base64Encoder.hpp"
+#include "LiteralConverter.hpp"
 
 /* C++ system */
 #include <iostream>
@@ -84,6 +85,28 @@ int test_base64_encode(void) {
     return 0;
 }
 
+int test_literal_to_string(void) {
+    const int lLiteral = 'abcd';
+    const std::string lExpectedStr = "abcd";
+
+    std::string lResult = tools::LiteralConverter::multiCharLiteralToString(lLiteral);
+
+    assert(lExpectedStr == lResult);
+
+    return 0;
+}
+
+int test_string_to_literal(void) {
+    const std::string lString = "abcd";
+    const int lExpectedLiteral = 'abcd';
+
+    int lResult = tools::LiteralConverter::stringToMultiCharLiteral(lString);
+
+    assert(lExpectedLiteral == lResult);
+
+    return 0;
+}
+
 
 /* ----------------------------------------------------- */
 /* main function --------------------------------------- */
@@ -117,6 +140,12 @@ int main(const int argc, const char * const * const argv)
             break;
         case 3:
             result = test_base64_encode();
+            break;
+        case 4:
+            result = test_literal_to_string();
+            break;
+        case 5:
+            result = test_string_to_literal();
             break;
         default:
             fprintf(stdout, "[INFO ] test #%d not available\n", test_num);
