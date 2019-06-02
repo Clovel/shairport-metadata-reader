@@ -184,46 +184,46 @@ namespace metadata {
         switch(pMetaData->code()) {
             case MD_CODE_PERSISTENT_ID: 
                 {
-                    uint32_t v = ntohl(*(uint32_t *)pPayload.c_str());
-                    pMetaData->setPersistentId(v);
-                    printf("Persistent ID: \"%u\".\n", v);
+                    uint32_t lPersistentID = ntohl(*(uint32_t *)pPayload.c_str());
+                    pMetaData->setPersistentID(lPersistentID);
+                    std::cout << "[INFO ] Persistent ID: \"" << lPersistentID << "\"" << std::endl;
                 }
                 break;
             case MD_CODE_URL:
                 pMetaData->setURL(pPayload);
-                printf("URL: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] URL: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_ALBUM_NAME:
                 pMetaData->setAlbumName(pPayload);
-                printf("Album Name: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Album Name: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_ARTIST:
                 pMetaData->setArtist(pPayload);
-                printf("Artist: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Artist: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_COMMENT:
                 pMetaData->setComment(pPayload);
-                printf("Comment: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Comment: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_GENRE:
                 pMetaData->setGenre(pPayload);
-                printf("Genre: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Genre: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_TITLE:
                 pMetaData->setTitle(pPayload);
-                printf("Title: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Title: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_COMPOSER:
                 pMetaData->setComposer(pPayload);
-                printf("Composer: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Composer: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_FILE_TYPE:
                 pMetaData->setFileType(pPayload);
-                printf("File kind: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] File kind: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_SORT_AS:
                 pMetaData->setSortAs(pPayload);
-                printf("Sort as: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Sort as: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_PICTURE:
                 /* TODO : What do we do here ? */
@@ -231,7 +231,7 @@ namespace metadata {
                 break;
             case MD_CODE_CLIENT_IP:
                 pMetaData->setClientIP(pPayload);
-                printf("Client's IP: \"%s\".\n", pPayload.c_str());
+                std::cout << "[INFO ] Client's IP: \"" << pPayload << "\"" << std::endl;
                 break;
             default:
                 /* TODO : What do we do here ? */
