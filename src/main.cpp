@@ -57,27 +57,35 @@ int main(const int argc, const char * const * const argv) {
     cv::Mat matrixJprg;
     cv::namedWindow("Artwork");
     bool lArtworkFound = false;
+    bool lBase64ReadSuccess = false;
 
     std::cout << "[INFO ] Starting main loop... " << std::endl;
     for(;;) {
         if(lMetaDataReader.readHeader(&lMetaData)) {
             /* Got header */
 
+            std::cout << "[DEBUG] code : " << lMetaData.code() << ", type : " << lMetaData.type() << ", length : " << lMetaData.length() << std::endl;
+
             std::string lDecodedB64Data;
-            if(lMetaDataReader.readBase64Data(&lMetaData, lDecodedB64Data)) {
-                /* Got Base64 data */ 
-            } else {
-                std::cout << "[ERROR] Failed to read Base64Data !" << std::endl;
-            }
+            lBase64ReadSuccess = lMetaDataReader.readBase64Data(&lMetaData, lDecodedB64Data);
+            (void)lBase64ReadSuccess;
+            // if(lBase64ReadSuccess) {
+            //     /* Got Base64 data */
+            //     std::cout << "[DEBUG] Decoded data : " << lDecodedB64Data << std::endl;
+            // } else {
+            //     std::cout << "[ERROR] Failed to read Base64Data !" << std::endl;
+            // }
 
             /* Processing all tags */
             if(lMetaDataReader.processTags(&lMetaData, lDecodedB64Data)) {
-                /*  */
-            } else {
-                std::cout << "[WARN ] Unexpected behaviour when processing tags !" << std::endl;
-            }
+                /* Print the metadata */
+                std::cout << std::endl << "[DEBUG] MetaData is : " << lMetaData << std::endl << std::endl;
+            } 
+            // else {
+            //     std::cout << "[WARN ] Unexpected behaviour when processing tags !" << std::endl;
+            // }
         } else {
-            std::cout << "[ERROR] Could not read metadata header from pipe !" << std::endl;
+            // std::cout << "[ERROR] Could not read metadata header from pipe !" << std::endl;
         }
     }
 
