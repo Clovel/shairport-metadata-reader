@@ -5,9 +5,31 @@
 /* Include --------------------------------------------- */
 #include "MetaData.hpp"
 
+#include <iostream>
+
 /* Defines --------------------------------------------- */
 
 /* Class implentation ---------------------------------- */
+
+std::ostream &operator<<(std::ostream &pOs, const metadata::MetaData &pMetaData) {
+    pOs << "Code : " << (unsigned int)pMetaData.code() << ", "
+        << "Type : " << (unsigned int)pMetaData.type() << ", "
+        << "Length : " << (unsigned int)pMetaData.length() << ", "
+        << "Title : " << pMetaData.title() << ", "
+        << "Album Name : " << pMetaData.albumName() << ", "
+        << "Artist : " << pMetaData.artist() << ", "
+        << "Genre : " << pMetaData.genre() << ", "
+        << "Composer : " << pMetaData.composer() << ", "
+        << "Comment : " << pMetaData.comment() << ", "
+        << "Sort As : " << pMetaData.sortAs() << ", "
+        << "URL : " << pMetaData.URL() << ", "
+        << "Client IP : " << pMetaData.clientIP() << ", "
+        << "Persistent ID : " << (unsigned int)pMetaData.persistentID() << ", "
+        << "File Type : " << pMetaData.fileType();
+    
+    return pOs;
+}
+
 namespace metadata {
     MetaData::MetaData() {
         /* Empty */
@@ -15,6 +37,10 @@ namespace metadata {
 
     MetaData::~MetaData() {
         /* Empty */
+    }
+
+    void MetaData::print(void) const {
+        std::cout << "[INFO ] MetaData value is : " << *this << std::endl;
     }
 
     /* Getters */

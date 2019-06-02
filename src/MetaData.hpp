@@ -13,12 +13,16 @@
 /* Defines --------------------------------------------- */
 
 /* Class ----------------------------------------------- */
+class ostream;
+
 namespace metadata {
     /** Model class for media MetaData received by Shairport-sync */
     class MetaData {
         public:
             MetaData();
             virtual ~MetaData();
+
+            void print(void) const;
 
             /* Getters */
             uint32_t type(void) const;
@@ -74,5 +78,7 @@ namespace metadata {
             std::string mSortAs;
     };
 }
+
+std::ostream &operator<<(std::ostream &pOs, const metadata::MetaData &pMetaData);
 
 #endif /* METADATA_HPP */
