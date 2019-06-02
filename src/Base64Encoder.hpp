@@ -2,6 +2,9 @@
  * Base64Encoder
  */
 
+#ifndef TOOLS_BASE64ENCODER_HPP
+#define TOOLS_BASE64ENCODER_HPP
+
 /* Include --------------------------------------------- */
 #include <string>
 
@@ -35,3 +38,5 @@ namespace tools {
             static const int sModTable[3];
     };
 }
+
+#endif /* TOOLS_BASE64ENCODER_HPP */
