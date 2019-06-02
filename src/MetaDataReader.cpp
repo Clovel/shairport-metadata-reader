@@ -124,41 +124,30 @@ namespace metadata {
                     std::string lB64DataString(lB64Data);
                     //std::cout << "[DEBUG] std::string lB64DataString(lB64Data) : " << lB64DataString << std::endl;
 
-                    /* If it is not a picture, decode the Base64 data */
-                    if('PICT' != pMetaData->code()) {
-                        //int lInputLength = 32768, lOutputLength = 32768; /* TODO : Magic number */
-                        /**
-                         * WARNING : These arbitrary values come from the 
-                         * original example from @mikebrady on GitHub : 
-                         * https://github.com/mikebrady/shairport-sync-metadata-reader
-                         * 
-                         * I opened an issue (#17) to ask if the difference in value is intentional. 
-                         * 
-                         * Anyway this value will be overwitten. 
-                         * 
-                         * FOLLOW-UP : @mikebradu answered. lInputLength = 32768. He also said : 
-                         * "Thanks for the post. It's a mistake 
-                         * I was thinking of 32768. You are right that is can be overwritten 
-                         * It will be replaced by the true size of the incoming picture 
-                         * data if less than 32768 bytes remain. 
-                         * Typically, though, pictures are larger, 
-                         * so this code has the effect of breaking the job of decoding 
-                         * an incoming picture into chunks that won't exceed 32768 bytes."
-                         * 
-                         * Finally, I chose to not use these indexes, 
-                         * but use std::string and size detection
-                         */
+                    //int lInputLength = 32768, lOutputLength = 32768; /* TODO : Magic number */
+                    /**
+                     * WARNING : These arbitrary values come from the 
+                     * original example from @mikebrady on GitHub : 
+                     * https://github.com/mikebrady/shairport-sync-metadata-reader
+                     * 
+                     * I opened an issue (#17) to ask if the difference in value is intentional. 
+                     * 
+                     * Anyway this value will be overwitten. 
+                     * 
+                     * FOLLOW-UP : @mikebradu answered. lInputLength = 32768. He also said : 
+                     * "Thanks for the post. It's a mistake 
+                     * I was thinking of 32768. You are right that is can be overwritten 
+                     * It will be replaced by the true size of the incoming picture 
+                     * data if less than 32768 bytes remain. 
+                     * Typically, though, pictures are larger, 
+                     * so this code has the effect of breaking the job of decoding 
+                     * an incoming picture into chunks that won't exceed 32768 bytes."
+                     * 
+                     * Finally, I chose to not use these indexes, 
+                     * but use std::string and size detection
+                     */
 
-                        pDecodedData = mBase64Encoder->decode(lB64DataString);
-                    } else {
-                        /* It is a picture ! */
-                        /* TODO : Decode picture */
-
-                        std::cout << "[WARN ] The data is a picture, not decoding..." << std::endl;
-
-                        /* Storing the picture data in the output string */
-                        pDecodedData = lB64DataString;
-                    }
+                    pDecodedData = mBase64Encoder->decode(lB64DataString);
                 } else {
                     //std::cout << "[ERROR] Failed to read the Base64 data !" << std::endl;
                     return false; /* Base64 data read failed ! */
@@ -245,7 +234,19 @@ namespace metadata {
                 break;
             case MD_CODE_PICTURE:
                 /* TODO : What do we do here ? */
-                printf("Picture received, length %u bytes.\n", pMetaData->length());
+                if( ((char)0xFF == (char)pPayload[0]) && ((char)0xD8 == (char)pPayload[1]) ) {
+                    std::cout << "[INFO ] Picture received, is a JPEG " << std::endl;
+                } else if("\211PNG\r\n\032\n" == pPayload.substr(0UL, 8U)) {
+                    std::cout << "[INFO ] Picture received, is a PNG " << std::endl;
+                }
+                //std::cout << "[DEBUG] pPayload[0] = " << std::hex << (int)pPayload[0] << ", pPayload[1] = " << (int)pPayload[1] << std::dec << std::endl;
+                //std::cout << "[DEBUG] pPayload.substr(0UL, 8U) = " << pPayload.substr(0UL, 8U) << std::endl;
+                std::cout << "[INFO ] Picture received, length " << pMetaData->length() << " bytes." << std::endl;
+                std::cout << "[DEBUG] PICT data dump :" << std::endl << pPayload << std::endl;
+                {
+                    FILE *lImageFile = fopen("/tmp/shairport-artwork.jpg", "w+");
+                    fwrite(pPayload.c_str(), pMetaData->length(), 1, lImageFile);
+                }
                 break;
             case MD_CODE_CLIENT_IP:
                 pMetaData->setClientIP(pPayload);
@@ -263,7 +264,8 @@ namespace metadata {
                     printf("\"%s\" \"%s\": \"%s\".\n", typestring, codestring, pPayload.c_str());
                 } else {
                     /* TODO : What do we do here ? */
-                    std::cout << "[DEBUG] Unknown metadata code : " << pMetaData->code() << " (" << tools::LiteralConverter::multiCharLiteralToString(pMetaData->code()) << ")" << std::endl;
+                    /** There are still lots of code that are not yet supported. */
+                    //std::cout << "[DEBUG] Unknown metadata code : " << pMetaData->code() << " (" << tools::LiteralConverter::multiCharLiteralToString(pMetaData->code()) << ")" << std::endl;
                     return false; /* TODO : Is this the expected behaviour ? */
                 }
         }
