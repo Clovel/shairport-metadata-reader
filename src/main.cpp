@@ -3,10 +3,12 @@
  */
 
 /* Includes -------------------------------------------- */
-#include "Base64Encoder.hpp"
-#include "NamedPipe.hpp"
 #include "MetaDataReader.hpp"
 #include "MetaData.hpp"
+
+#include "Base64Encoder.hpp"
+#include "NamedPipe.hpp"
+#include "LiteralConverter.hpp"
 
 #include <opencv2/opencv.hpp>
 
