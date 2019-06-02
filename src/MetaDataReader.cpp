@@ -8,7 +8,10 @@
 
 #include "Base64Encoder.hpp"
 
+#include <iostream>
+
 #include <cstdio>
+#include <cstring>
 #include <cstdint>
 
 /* Class implementation -------------------------------- */
@@ -121,20 +124,40 @@ namespace metadata {
                         /* It is a picture ! */
                         /* TODO : Decode picture */
 
-                        /* For now, return false */
-                        return false;
-                    }
+                        std::cout << "[WARN ] The data is a picture, not decoding..." << std::endl;
 
-                    return true;
+                        /* Storing the picture data in the output string */
+                        pDecodedData = lB64DataString;
+                    }
                 } else {
+                    std::cout << "[ERROR] Failed to read the Base64 data !" << std::endl;
                     return false; /* Base64 data read failed ! */
                 }
+
+                /* Free the memory allocated for the char buffer */
+                std::free((void *)lB64Data);
             } else {
                 /* Memory allocation failed ! */
+                std::cout << "[ERROR] Failed to allocate memory for the Base64 char buffer !" << std::endl;
+
                 return false;
+            }
+
+            /* Get the end of data tag */
+            if(!readEndTag()) {
+                std::cout << "[ERROR] End of data tag not found !" << std::endl;
+
+                /* TODO : Return ? */
+            }
+
+            if(!checkBase64EndSection()) {
+                std::cout << "[ERROR] Unexpected characters at the end of a Base64 section." << std::endl;
+
+                /* TODO : Return ? */
             }
         } else {
             /* No Base64 data */
+            std::cout << "[ERROR] There is no Base64 data !" << std::endl;
             return false;
         }
     }
@@ -142,8 +165,27 @@ namespace metadata {
     bool MetaDataReader::readEndTag(void) const {
         char lEndTag[64];
         const int lRc = std::fscanf(mFile, "%64s", lEndTag);
-        if("</data></item>" == std::string(lEndTag)) {
+        (void)lRc; /* Useless until proven otherwise */
+        if("</data></item>" != std::string(lEndTag)) {
             /* End data tag not seen, \"%s\" seen instead.\n */
+            std::printf("[ERROR] End data tag not seen, \"%s\" seen instead.\n", lEndTag);
+
+            return false;
         }
+
+        return true;
+    }
+
+    bool MetaDataReader::checkBase64EndSection(void) const {
+        char lStr[1025];
+
+        /** From @mikebrady's example : 
+         * "Now, there will either be a line feed or nothing at the end of this line
+         * it's not necessary XML, but it's what Shairport Sync puts out, 
+         * and it makes life a bit easier. 
+         * So, if there's something there and it's not just a linefeed, it's an error."
+         */
+
+        return !((std::fgets(lStr, 1024, mFile) != NULL) && ((std::strlen(lStr) != 1) || (lStr[0] != 0x0A)));
     }
 }
