@@ -82,11 +82,19 @@ namespace metadata {
 
     bool MetaDataReader::readBase64Data(const MetaData * const pMetaData, std::string &pDecodedData) {
         /* Check if the data that follows is Base64 data */
-        if(0 == std::fscanf(mFile, "<data encoding=\"base64\">")) {
+        std::string lStartTag = "<data encoding=\"base64\">";
+        char *lReadChars = (char *)std::malloc(lStartTag.length() + 1);
+        std::memset(lReadChars, 0, lStartTag.length() + 1);
+        std::fgets(lReadChars, lStartTag.length() + 1, mFile);
+        std::string lReadStr(lReadChars);
+
+        if(lStartTag == lReadStr) {
+        //if(0 == std::fscanf(mFile, "<data encoding=\"base64\">")) {
             /* Base 64 data */
 
             /* TODO : Why this step ? */
             int lC = std::fgetc(mFile);
+            //std::cout << "[DEBUG] int lC = std::fgetc(mFile) : " << lC << std::endl;
             (void)lC; /* Useless until proven otherwise */
 
             /* Calculate the size of the Base64 data */
@@ -100,8 +108,12 @@ namespace metadata {
             if(nullptr != lB64Data) {
                 /* It was ! */
 
+                /* Reset the data just in case */
+                std::memset(lB64Data, 0, lB64Length + 1);
+
                 /* Read the Base64 data */
                 if(std::fgets(lB64Data, lB64Length + 1, mFile)) {
+                    //std::cout << "[DEBUG] std::fgets(lB64Data, lB64Length + 1, mFile) : " << lB64Data << std::endl;
                     /** It seems that we have found B64 data 
                      * printf("Looks like we got it, with a buffer size of %u.\n",b64size);
                      * puts(lB64Buffer);
@@ -109,6 +121,7 @@ namespace metadata {
                      */
 
                     std::string lB64DataString(lB64Data);
+                    //std::cout << "[DEBUG] std::string lB64DataString(lB64Data) : " << lB64DataString << std::endl;
 
                     /* If it is not a picture, decode the Base64 data */
                     if('PICT' != pMetaData->code()) {
@@ -146,7 +159,7 @@ namespace metadata {
                         pDecodedData = lB64DataString;
                     }
                 } else {
-                    std::cout << "[ERROR] Failed to read the Base64 data !" << std::endl;
+                    //std::cout << "[ERROR] Failed to read the Base64 data !" << std::endl;
                     return false; /* Base64 data read failed ! */
                 }
 
@@ -173,7 +186,7 @@ namespace metadata {
             }
         } else {
             /* No Base64 data */
-            std::cout << "[ERROR] There is no Base64 data !" << std::endl;
+            //std::cout << "[ERROR] There is no Base64 data !" << std::endl;
             return false;
         }
 
@@ -181,6 +194,10 @@ namespace metadata {
     }
 
     bool MetaDataReader::processTags(MetaData * const pMetaData, const std::string &pPayload) {
+        /** From @mikebrady's example : 
+         * "this has more information about tags, which might be relevant:
+         * https://code.google.com/p/ytrack/wiki/DMAP"
+         */
         switch(pMetaData->code()) {
             case MD_CODE_PERSISTENT_ID: 
                 {
@@ -254,12 +271,15 @@ namespace metadata {
     }
 
     bool MetaDataReader::readEndTag(void) const {
-        char lEndTag[64];
-        const int lRc = std::fscanf(mFile, "%64s", lEndTag);
-        (void)lRc; /* Useless until proven otherwise */
-        if("</data></item>" != std::string(lEndTag)) {
-            /* End data tag not seen, \"%s\" seen instead.\n */
-            std::printf("[ERROR] End data tag not seen, \"%s\" seen instead.\n", lEndTag);
+        std::string lEndTag = "</data></item>";
+        char *lReadChars = (char *)std::malloc(lEndTag.length() + 1);
+        std::memset(lReadChars, 0, lEndTag.length() + 1);
+        std::fgets(lReadChars, lEndTag.length() + 1, mFile);
+        std::string lReadStr(lReadChars);
+
+
+        if(lEndTag != lReadStr) {
+            std::cout << "[ERROR] End data tag not seen, \"" << lReadStr << "\" seen instead." << std::endl;
 
             return false;
         }
