@@ -25,7 +25,7 @@ namespace metadata {
             uint32_t code(void) const;
             uint32_t length(void) const;
 
-            uint32_t persistentId(void) const;
+            uint32_t persistentID(void) const;
             std::string URL(void) const;
             std::string clientIP(void) const;
             std::string albumName(void) const;
@@ -42,7 +42,7 @@ namespace metadata {
             void setCode(const uint32_t &pCode);
             void setLength(const uint32_t &pLength);
 
-            void setPersistentId(const uint32_t &pPersistentId);
+            void setPersistentID(const uint32_t &pPersistentID);
             void setURL(const std::string &pURL);
             void setClientIP(const std::string &pClientIP);
             void setAlbumName(const std::string &pAlbumName);
@@ -61,7 +61,7 @@ namespace metadata {
             uint32_t mLength;
 
             /* Specific MetaData information */
-            uint32_t mPersistentId;
+            uint32_t mPersistentID;
             std::string mURL;
             std::string mClientIP;
             std::string mAlbumName;

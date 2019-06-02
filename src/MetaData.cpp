@@ -30,8 +30,8 @@ namespace metadata {
         return mLength;
     }
 
-    uint32_t MetaData::persistentId(void) const {
-        return mPersistentId;
+    uint32_t MetaData::persistentID(void) const {
+        return mPersistentID;
     }
 
     std::string MetaData::URL(void) const {
@@ -85,8 +85,8 @@ namespace metadata {
         mLength = pLength;
     }
 
-    void MetaData::setPersistentId(const uint32_t &pPersistentId) {
-        mPersistentId = pPersistentId;
+    void MetaData::setPersistentID(const uint32_t &pPersistentID) {
+        mPersistentID = pPersistentID;
     }
 
     void MetaData::setURL(const std::string &pURL) {
