@@ -66,9 +66,22 @@ int main(const int argc, const char * const * const argv) {
             std::string lDecodedB64Data;
             if(lMetaDataReader.readBase64Data(&lMetaData, lDecodedB64Data)) {
                 /* Got Base64 data */ 
+            } else {
+                std::cout << "[ERROR] Failed to read Base64Data !" << std::endl;
             }
+
+            /* Processing all tags */
+            if(lMetaDataReader.processTags(&lMetaData, lDecodedB64Data)) {
+                /*  */
+            } else {
+                std::cout << "[WARN ] Unexpected behaviour when processing tags !" << std::endl;
+            }
+        } else {
+            std::cout << "[ERROR] Could not read metadata header from pipe !" << std::endl;
         }
     }
+
+    std::cout << "[EXIT ] Stopping program..." << std::endl;
 
     return EXIT_SUCCESS;
 }
