@@ -1,9 +1,9 @@
 /**
- * RawJPG
+ * RawJPEG
  */
 
-#ifndef RAW_JPG_HPP
-#define RAW_JPG_HPP
+#ifndef RAW_JPEG_HPP
+#define RAW_JPEG_HPP
 
 /* Include --------------------------------------------- */
 #include <string>
@@ -11,11 +11,11 @@
 /* Defines --------------------------------------------- */
 
 /* Class ----------------------------------------------- */
-class RawJPG {
+class RawJPEG {
     public:
-        RawJPG();
-        RawJPG(const std::string &pStr);
-        virtual ~RawJPG();
+        RawJPEG();
+        RawJPEG(const std::string &pStr);
+        virtual ~RawJPEG();
 
         void print(void) const;
 
@@ -32,6 +32,6 @@ class RawJPG {
         bool mComplete;
 };
 
-std::ostream &operator<<(std::ostream &pOs, const RawJPG &pRawJPG);
+std::ostream &operator<<(std::ostream &pOs, const RawJPEG &pRawJPEG);
 
-#endif /* RAW_JPG_HPP */
+#endif /* RAW_JPEG_HPP */
