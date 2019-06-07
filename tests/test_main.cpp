@@ -2,9 +2,13 @@
 #include "Base64Encoder.hpp"
 #include "LiteralConverter.hpp"
 
+#include "RawJPEGFactory.hpp"
+
 /* C++ system */
 #include <iostream>
+#include <fstream>
 #include <string>
+#include <exception>
 
 /* C system */
 #include <cstring>
@@ -33,7 +37,7 @@ int test_base64_encode_decode(void) {
 
     assert(lStr == lDecodedStr);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int test_base64_decode_encode(void) {
@@ -49,7 +53,7 @@ int test_base64_decode_encode(void) {
 
     assert(lStr == lEncodedStr);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int test_base64_decode(void) {
@@ -63,7 +67,7 @@ int test_base64_decode(void) {
 
     assert(lExpectedStr == lDecodedStr);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int test_base64_encode(void) {
@@ -82,7 +86,7 @@ int test_base64_encode(void) {
 
     assert(lExpectedStr == lEncodedStr);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int test_literal_to_string(void) {
@@ -93,7 +97,7 @@ int test_literal_to_string(void) {
 
     assert(lExpectedStr == lResult);
 
-    return 0;
+    return EXIT_SUCCESS;
 }
 
 int test_string_to_literal(void) {
@@ -105,6 +109,70 @@ int test_string_to_literal(void) {
     assert(lExpectedLiteral == lResult);
 
     return 0;
+}
+
+int test_raw_jpeg_factory(void) {
+    std::ifstream lInputFileStream;
+    lInputFileStream.open("../../ressources/lena30.jpg", std::ios_base::in | std::ios_base::binary | std::ios_base::ate);
+    if(lInputFileStream.fail() || !lInputFileStream.is_open()) {
+        std::cout << "[ERROR] Failed to open ../../ressources/lena30.jpg" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    std::string lRawJPEG;
+    size_t lStrRawLength = lInputFileStream.tellg();
+    std::cout << "[INFO ] lStrRawLength = " << lStrRawLength << std::endl;
+
+    /* Allocating memory for the string in advance */
+    try {
+        lRawJPEG.reserve(lStrRawLength);
+        } catch (const std::exception &e) {
+        std::cout << "[ERROR] Excpetion \"" << e.what() << "\" occured during allocation !" << std::endl;
+        return EXIT_FAILURE;
+    }
+    try {
+        lInputFileStream.seekg(0, std::ios::beg);
+    } catch (const std::bad_alloc &e) {
+        std::cout << "[ERROR] Excpetion \"" << e.what() << "\" occured during seekg back to BOF !" << std::endl;
+        return EXIT_FAILURE;
+    }
+
+    /* Getting the string */
+    try {
+        lRawJPEG.assign((std::istreambuf_iterator<char>(lInputFileStream)),
+                std::istreambuf_iterator<char>());
+    } catch (const std::exception &e) {
+        std::cout << "[ERROR] Excpetion \"" << e.what() << "\" occured during data read !" << std::endl;
+        return EXIT_FAILURE;
+    }
+    
+    //std::cout << "[DEBUG] Raw contents are : " << lRawJPEG << std::endl;
+
+    /* Instanciate a RawJPEGFactory */
+    RawJPEGFactory lFactory;
+
+    /* Segmenting the string */
+    size_t lSegmentSize = lStrRawLength/100;
+    size_t lLeftSize = lStrRawLength % 100;
+    std::cout << "[DEBUG] lSegmentSize = " << lSegmentSize << ", lSegmentSize*100 = " << lSegmentSize*100 << ", left = " << lLeftSize << std::endl;
+
+    /* Getting segments and appending them to the Facotry string */
+    std::string lTmpStr, lAppendResult;
+    for(unsigned int i = 0U; 100 > i; ++i) {
+        lTmpStr = lRawJPEG.substr(i*lSegmentSize, lSegmentSize);
+        lAppendResult = lFactory.append(lTmpStr);
+        assert(std::string() == lAppendResult);
+    }
+    lTmpStr = lRawJPEG.substr(lStrRawLength - lLeftSize, lSegmentSize);
+    lAppendResult = lFactory.append(lTmpStr);
+    
+    /* Check if the Factory returned the raw string */
+    assert(std::string() != lAppendResult);
+
+    /* Check if the Factory's result is equal to the original raw data */
+    assert(lRawJPEG == lAppendResult);
+
+    return EXIT_SUCCESS;
 }
 
 
@@ -146,6 +214,9 @@ int main(const int argc, const char * const * const argv)
             break;
         case 5:
             result = test_string_to_literal();
+            break;
+        case 6:
+            result = test_raw_jpeg_factory();
             break;
         default:
             fprintf(stdout, "[INFO ] test #%d not available\n", test_num);
