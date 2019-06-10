@@ -38,15 +38,7 @@ std::string RawJPEG::rawData(void) const {
     return mRawData;
 }
 
-bool RawJPEG::isComplete(void) const {
-    return mComplete;
-}
-
 /* Setters */
 void RawJPEG::setRawData(const std::string &pStr) {
     mRawData = pStr;
-}
-
-void RawJPEG::setCompleted(const bool &pComplete) {
-    mComplete = pComplete;
 }

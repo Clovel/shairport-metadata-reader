@@ -21,15 +21,12 @@ class RawJPEG {
 
         /* Getters */
         std::string rawData(void) const;
-        bool isComplete(void) const;
 
         /* Setters */
         void setRawData(const std::string &pStr);
-        void setCompleted(const bool &pStr);
 
     private:
         std::string mRawData;
-        bool mComplete;
 };
 
 std::ostream &operator<<(std::ostream &pOs, const RawJPEG &pRawJPEG);
