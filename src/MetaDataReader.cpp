@@ -10,10 +10,13 @@
 #include "LiteralConverter.hpp"
 
 #include <iostream>
+#include <fstream>
+#include <string>
 
 #include <cstdio>
 #include <cstring>
 #include <cstdint>
+#include <cmath>
 
 /* Typedefs -------------------------------------------- */
 typedef enum _metaDataCodes {
@@ -33,36 +36,36 @@ typedef enum _metaDataCodes {
 
 /* Class implementation -------------------------------- */
 namespace metadata {
-    MetaDataReader::MetaDataReader(FILE * const mFile) : 
-        mFile(mFile), 
+    MetaDataReader::MetaDataReader(std::ifstream * const pStream) : 
+        mFileStream(pStream), 
         mBase64Encoder(&tools::Base64Encoder::instance())
     {
         /* Empty */
     }
 
     MetaDataReader::~MetaDataReader() {
-        mFile = nullptr;
+        mFileStream = nullptr;
     }
 
     /* Getters */
-    FILE *MetaDataReader::file(void) const {
-        return mFile;
+    std::ifstream *MetaDataReader::fileStream(void) const {
+        return mFileStream;
     }
 
     /* Setters */
-    void MetaDataReader::setFile(FILE *pFile) {
-        mFile = pFile;
+    void MetaDataReader::setFileStream(std::ifstream * const pStream) {
+        mFileStream = pStream;
     }
 
     bool MetaDataReader::readHeader(MetaData * const pMetaData) {
-        char lStr[1024];
+        std::string lStr;
 
         /* Get the header */
-        if(std::fgets(lStr, 1024, mFile)) {
+        if(std::getline(*mFileStream, lStr)) {
             /* Decipher the header's contents */
             uint32_t lType = 0U, lCode = 0U, lLength = 0U;
 
-            int lResult = std::sscanf(lStr, "<item><type>%8x</type><code>%8x</code><length>%u</length>", &lType, &lCode, &lLength);
+            int lResult = std::sscanf(lStr.c_str(), "<item><type>%8x</type><code>%8x</code><length>%u</length>", &lType, &lCode, &lLength);
             if(3 == lResult) {
                 /* We got all three values */
 
@@ -74,110 +77,66 @@ namespace metadata {
 
                 return true;
             } else {
+                /* Header data is not correct */
                 return false;
             }
         } else {
+            /* getline failed */
             return false;
         }
     }
 
     bool MetaDataReader::readBase64Data(const MetaData * const pMetaData, std::string &pDecodedData) {
+        (void)pMetaData;
+        
         /* Check if the data that follows is Base64 data */
-        std::string lStartTag = "<data encoding=\"base64\">";
-        char *lReadChars = (char *)std::malloc(lStartTag.length() + 1);
-        std::memset(lReadChars, 0, lStartTag.length() + 1);
-        std::fgets(lReadChars, lStartTag.length() + 1, mFile);
-        std::string lReadStr(lReadChars);
+        static const std::string lB64StartTag = "<data encoding=\"base64\">";
+        static const std::string lB64EndTag   = "</data></item>";
+        
+        std::string lReadStr;
 
-        if(lStartTag == lReadStr) {
-        //if(0 == std::fscanf(mFile, "<data encoding=\"base64\">")) {
-            /* Base 64 data */
+        if(std::getline(*mFileStream, lReadStr)) {
+            if(lB64StartTag == lReadStr) {
+                /* Base 64 data */
 
-            /* TODO : Why this step ? */
-            int lC = std::fgetc(mFile);
-            //std::cout << "[DEBUG] int lC = std::fgetc(mFile) : " << lC << std::endl;
-            (void)lC; /* Useless until proven otherwise */
-
-            /* Calculate the size of the Base64 data */
-            /* TODO : Find equation source */
-            size_t lB64Length = 4 * ((pMetaData->length() + 2) / 3);
-
-            /* Allocate memory for the Base64 data */
-            char *lB64Data = (char *)std::malloc(lB64Length + 1);
-
-            /* Was memory allocation successful ? */
-            if(nullptr != lB64Data) {
-                /* It was ! */
-
-                /* Reset the data just in case */
-                std::memset(lB64Data, 0, lB64Length + 1);
+                /* Allocate memory for the Base64 data */
+                // char *lB64Data = (char *)std::malloc(lB64Length + 1);
+                std::string lB64Str, lB64FullStr;
 
                 /* Read the Base64 data */
-                if(std::fgets(lB64Data, lB64Length + 1, mFile)) {
-                    //std::cout << "[DEBUG] std::fgets(lB64Data, lB64Length + 1, mFile) : " << lB64Data << std::endl;
-                    /** It seems that we have found B64 data 
-                     * printf("Looks like we got it, with a buffer size of %u.\n",b64size);
-                     * puts(lB64Buffer);
-                     * printf("\n");
-                     */
-
-                    std::string lB64DataString(lB64Data);
-                    //std::cout << "[DEBUG] std::string lB64DataString(lB64Data) : " << lB64DataString << std::endl;
-
-                    //int lInputLength = 32768, lOutputLength = 32768; /* TODO : Magic number */
-                    /**
-                     * WARNING : These arbitrary values come from the 
-                     * original example from @mikebrady on GitHub : 
-                     * https://github.com/mikebrady/shairport-sync-metadata-reader
-                     * 
-                     * I opened an issue (#17) to ask if the difference in value is intentional. 
-                     * 
-                     * Anyway this value will be overwitten. 
-                     * 
-                     * FOLLOW-UP : @mikebradu answered. lInputLength = 32768. He also said : 
-                     * "Thanks for the post. It's a mistake 
-                     * I was thinking of 32768. You are right that is can be overwritten 
-                     * It will be replaced by the true size of the incoming picture 
-                     * data if less than 32768 bytes remain. 
-                     * Typically, though, pictures are larger, 
-                     * so this code has the effect of breaking the job of decoding 
-                     * an incoming picture into chunks that won't exceed 32768 bytes."
-                     * 
-                     * Finally, I chose to not use these indexes, 
-                     * but use std::string and size detection
-                     */
-
-                    pDecodedData = mBase64Encoder->decode(lB64DataString);
-                } else {
-                    //std::cout << "[ERROR] Failed to read the Base64 data !" << std::endl;
-                    return false; /* Base64 data read failed ! */
+                /* This data is maybe segmented and thus need several reads */
+                bool lReadSuccess = false;
+                while ((lReadSuccess = std::getline(*mFileStream, lB64Str).good())) {
+                    lB64FullStr += lB64Str;
+                    if(lB64FullStr.length() >= lB64EndTag.length()) {
+                        if(0 == lB64FullStr.compare(lB64FullStr.length() - lB64Str.length(), lB64FullStr.length(), lB64Str)) {
+                            /* Got all the data */
+                            break;
+                        }
+                    }
                 }
 
-                /* Free the memory allocated for the char buffer */
-                std::free((void *)lB64Data);
-            } else {
-                /* Memory allocation failed ! */
-                std::cout << "[ERROR] Failed to allocate memory for the Base64 char buffer !" << std::endl;
+                if(lReadSuccess) {
+                    /* Decode the Base64 data */
+                    pDecodedData = mBase64Encoder->decode(lB64FullStr);
+                } else {
+                    //std::cout << "[ERROR] Failed to read the Base64 data !" << std::endl;
+                    return false;
+                }
 
+                // if(!checkBase64EndSection()) {
+                //     std::cout << "[ERROR] Unexpected characters at the end of a Base64 section." << std::endl;
+
+                //     /* TODO : Return ? */
+                // }
+            } else {
+                /* No Base64 data */
+                std::cout << "[ERROR] There is no Base64 data !" << std::endl;
+                std::cout << "        Instead, read : " << lReadStr << std::endl;
                 return false;
             }
-
-            /* Get the end of data tag */
-            if(!readEndTag()) {
-                std::cout << "[ERROR] End of data tag not found !" << std::endl;
-
-                /* TODO : Return ? */
-            }
-
-            if(!checkBase64EndSection()) {
-                std::cout << "[ERROR] Unexpected characters at the end of a Base64 section." << std::endl;
-
-                /* TODO : Return ? */
-            }
         } else {
-            /* No Base64 data */
-            //std::cout << "[ERROR] There is no Base64 data !" << std::endl;
-            return false;
+            /* TODO : Read went wrong */
         }
 
         return true;
@@ -273,33 +232,18 @@ namespace metadata {
         return true;
     }
 
-    bool MetaDataReader::readEndTag(void) const {
-        std::string lEndTag = "</data></item>";
-        char *lReadChars = (char *)std::malloc(lEndTag.length() + 1);
-        std::memset(lReadChars, 0, lEndTag.length() + 1);
-        std::fgets(lReadChars, lEndTag.length() + 1, mFile);
-        std::string lReadStr(lReadChars);
-
-
-        if(lEndTag != lReadStr) {
-            std::cout << "[ERROR] End data tag not seen, \"" << lReadStr << "\" seen instead." << std::endl;
-
-            return false;
-        }
-
-        return true;
-    }
-
     bool MetaDataReader::checkBase64EndSection(void) const {
-        char lStr[1025];
+        char lStr[1024];
 
         /** From @mikebrady's example : 
          * "Now, there will either be a line feed or nothing at the end of this line
-         * it's not necessary XML, but it's what Shairport Sync puts out, 
+         * it's not necessarily XML, but it's what Shairport Sync puts out, 
          * and it makes life a bit easier. 
          * So, if there's something there and it's not just a linefeed, it's an error."
          */
 
-        return !((std::fgets(lStr, 1024, mFile) != NULL) && ((std::strlen(lStr) != 1) || (lStr[0] != 0x0A)));
+        /* TODO : Magic numbers */
+
+        return !((mFileStream->get(lStr, 1024)) && ((std::strlen(lStr) != 1) || (lStr[0] != 0x0A)));
     }
 }
