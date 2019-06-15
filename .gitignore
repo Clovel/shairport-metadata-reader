@@ -78,3 +78,5 @@ src_file_list*.txt
 
 # OS Related files ------------------------------
 .DS_Store
+
+examples/test
