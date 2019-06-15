@@ -100,8 +100,8 @@ namespace tools {
 
         while (lInLength-- && ( encoded_string[lIn] != '=') && isBase64(encoded_string[lIn])) {
             pCharArray4[i++] = encoded_string[lIn]; lIn++;
-            if (i ==4) {
-                for (i = 0; i <4; i++)
+            if (i == 4) {
+                for (i = 0; i < 4; i++)
                     pCharArray4[i] = sEncodingTable.find(pCharArray4[i]);
 
                 pCharArray3[0] = (pCharArray4[0] << 2) + ((pCharArray4[1] & 0x30) >> 4);
@@ -116,10 +116,10 @@ namespace tools {
         }
 
         if (i) {
-            for (j = i; j <4; j++)
+            for (j = i; j < 4; j++)
                 pCharArray4[j] = 0;
 
-            for (j = 0; j <4; j++)
+            for (j = 0; j < 4; j++)
                 pCharArray4[j] = sEncodingTable.find(pCharArray4[j]);
 
             pCharArray3[0] = (pCharArray4[0] << 2) + ((pCharArray4[1] & 0x30) >> 4);
