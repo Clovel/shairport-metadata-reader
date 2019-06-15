@@ -36,9 +36,10 @@ int main(const int argc, const char * const * const argv) {
 
     /* Opening NamedPipe */
     std::string lFilePath("/tmp/shairport-sync-metadata");
+    std::ifstream lFileStream;
+    lFileStream.open(lFilePath, std::ios_base::binary | std::ios_base::in);
 
-    NamedPipe lPipe(lFilePath);
-    int lOpened = lPipe.openPipe();
+    int lOpened = lFileStream.is_open();
     if(0 > lOpened) {
         std::cout << "[ERROR] Could not open file \"" << lFilePath << "\" (returned " << lOpened << ")" << std::endl;
         exit(EXIT_FAILURE);
@@ -53,12 +54,9 @@ int main(const int argc, const char * const * const argv) {
     metadata::MetaData lMetaData;
 
     /* Initializing MetaDataReader */
-    metadata::MetaDataReader lMetaDataReader(lPipe.file());
+    metadata::MetaDataReader lMetaDataReader(&lFileStream);
 
     /* Initializing OpenCV for Artwork */
-    cv::Mat matrixJprg;
-    cv::namedWindow("Artwork");
-    bool lArtworkFound = false;
     bool lBase64ReadSuccess = false;
 
     std::cout << "[INFO ] Starting main loop... " << std::endl;
@@ -81,7 +79,7 @@ int main(const int argc, const char * const * const argv) {
             /* Processing all tags */
             if(lMetaDataReader.processTags(&lMetaData, lDecodedB64Data)) {
                 /* Print the metadata */
-                std::cout << std::endl << "[DEBUG] MetaData is : " << lMetaData << std::endl << std::endl;
+                //std::cout << std::endl << "[DEBUG] MetaData is : " << lMetaData << std::endl << std::endl;
             } 
             // else {
             //     std::cout << "[WARN ] Unexpected behaviour when processing tags !" << std::endl;
