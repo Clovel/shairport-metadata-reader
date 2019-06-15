@@ -39,6 +39,7 @@ add_test(test_base64_decode tests_${PROJECT_NAME} 2)
 add_test(test_base64_encode tests_${PROJECT_NAME} 3)
 add_test(test_literal_to_string tests_${PROJECT_NAME} 4)
 add_test(test_string_to_literal tests_${PROJECT_NAME} 5)
+add_test(test_raw_jpeg_factory tests_${PROJECT_NAME} 6)
 # add_test(XXXXX tests_${PROJECT_NAME} 0)
 
 add_executable(tests_${PROJECT_NAME}
