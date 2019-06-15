@@ -7,6 +7,7 @@
 
 /* Include --------------------------------------------- */
 #include <string>
+#include <iosfwd>
 
 #include <cstdio>
 
@@ -22,14 +23,14 @@ namespace metadata {
 
     class MetaDataReader {
         public:
-            MetaDataReader(FILE * const pFile);
+            MetaDataReader(std::ifstream * const pStream);
             virtual ~MetaDataReader();
 
             /* Getters */
-            FILE *file(void) const;
+            std::ifstream *fileStream(void) const;
 
             /* Setters */
-            void setFile(FILE *pFile);
+            void setFileStream(std::ifstream * const pStream);
 
             bool readHeader(MetaData * const pMetaData);
             bool readBase64Data(const MetaData * const pMetaData, std::string &pDecodedData);
@@ -39,7 +40,7 @@ namespace metadata {
             bool readEndTag(void) const;
             bool checkBase64EndSection(void) const;
 
-            FILE *mFile;
+            std::ifstream *mFileStream;
 
             tools::Base64Encoder *mBase64Encoder;
     };
