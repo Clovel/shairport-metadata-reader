@@ -154,6 +154,9 @@ namespace metadata {
     }
 
     bool MetaDataReader::processTags(MetaData * const pMetaData, const std::string &pPayload) {
+        static bool sImageReadInProgress = false;
+        std::string lImageFactoryResult;
+
         /** From @mikebrady's example : 
          * "this has more information about tags, which might be relevant:
          * https://code.google.com/p/ytrack/wiki/DMAP"
@@ -203,17 +206,37 @@ namespace metadata {
                 //std::cout << "[INFO ] Sort as: \"" << pPayload << "\"" << std::endl;
                 break;
             case MD_CODE_PICTURE:
-                /* TODO : What do we do here ? */
                 if( ((char)0xFF == (char)pPayload[0]) && ((char)0xD8 == (char)pPayload[1]) ) {
-                    std::cout << "[INFO ] Picture received, is a JPEG " << std::endl;
+                    std::cout << "[INFO ] New picture received, is a JPEG" << std::endl;
+
+                    /* Checking if a read was in progress */
+                    if(sImageReadInProgress) {
+                        /* A JPEG is still being read. 
+                         * Discarding the previous data */
+                        std::cout << "[WARN ] A JPEG was being read, but a new one arrived. Discarding previous data..." << std::endl;
+                        mJPEGFactory->clear();
+                        sImageReadInProgress = false;
+                    }
+
+                    /* Giving the segment of data to the JPEG factory */
+                    lImageFactoryResult = mJPEGFactory->append(pPayload);
+
+                    /* Check if the image is complete */
+                    if(!lImageFactoryResult.empty()) {
+                        /* Data read is no longer in progress */
+                        sImageReadInProgress = false;
+                        mJPEGFactory->clear();
+                    }
                 } else if("\211PNG\r\n\032\n" == pPayload.substr(0UL, 8U)) {
                     std::cout << "[INFO ] Picture received, is a PNG " << std::endl;
                 }
                 //std::cout << "[DEBUG] pPayload[0] = " << std::hex << (int)pPayload[0] << ", pPayload[1] = " << (int)pPayload[1] << std::dec << std::endl;
                 //std::cout << "[DEBUG] pPayload.substr(0UL, 8U) = " << pPayload.substr(0UL, 8U) << std::endl;
                 std::cout << "[INFO ] Picture received, length " << pMetaData->length() << " bytes." << std::endl;
-                std::cout << "[DEBUG] PICT data dump :" << std::endl << pPayload << std::endl;
-                {
+                // std::cout << "[DEBUG] PICT data dump :" << std::endl << pPayload << std::endl;
+
+                /* Check if the image is complete, write it for debug */
+                if(!lImageFactoryResult.empty()) {
                     FILE *lImageFile = fopen("/tmp/shairport-artwork.jpg", "w+");
                     fwrite(pPayload.c_str(), pMetaData->length(), 1, lImageFile);
                 }
