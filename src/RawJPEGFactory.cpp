@@ -25,7 +25,15 @@ RawJPEGFactory::~RawJPEGFactory() {
 }
 
 std::string RawJPEGFactory::append(const std::string pStr) {
+    if(mIsComplete) {
+        /* If the file is already complete, clear data before appending to the buffer */
+        clear();
+    }
+
     mRawData.append(pStr);
-    return checkJPEGEnding(mRawData) ? mRawData : std::string();
+
+    mIsComplete = checkJPEGEnding(mRawData);
+
+    return mIsComplete ? mRawData : std::string();
 }
 
