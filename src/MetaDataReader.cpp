@@ -37,6 +37,8 @@ typedef enum _metaDataCodes {
     MD_CODE_CLIENT_IP = 'clip'
 } MetaDataCode_t;
 
+/* Variable declaration -------------------------------- */
+
 /* Class implementation -------------------------------- */
 namespace metadata {
     MetaDataReader::MetaDataReader(std::ifstream * const pStream) : 
