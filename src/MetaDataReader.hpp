@@ -14,6 +14,8 @@
 /* Defines --------------------------------------------- */
 
 /* Class ----------------------------------------------- */
+class RawJPEGFactory;
+
 namespace tools {
     class Base64Encoder;
 }
@@ -43,6 +45,8 @@ namespace metadata {
             std::ifstream *mFileStream;
 
             tools::Base64Encoder *mBase64Encoder;
+
+            RawJPEGFactory *mJPEGFactory;
     };
 }
 

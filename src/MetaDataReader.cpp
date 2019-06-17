@@ -9,6 +9,9 @@
 #include "Base64Encoder.hpp"
 #include "LiteralConverter.hpp"
 
+#include "RawJPEGFactory.hpp"
+#include "RawJPEG.hpp"
+
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -38,13 +41,19 @@ typedef enum _metaDataCodes {
 namespace metadata {
     MetaDataReader::MetaDataReader(std::ifstream * const pStream) : 
         mFileStream(pStream), 
-        mBase64Encoder(&tools::Base64Encoder::instance())
+        mBase64Encoder(&tools::Base64Encoder::instance()),
+        mJPEGFactory(new RawJPEGFactory)
     {
         /* Empty */
     }
 
     MetaDataReader::~MetaDataReader() {
         mFileStream = nullptr;
+
+        if(mJPEGFactory != nullptr) {
+            delete mJPEGFactory;
+        }
+        mJPEGFactory = nullptr;
     }
 
     /* Getters */
