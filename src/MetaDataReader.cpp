@@ -21,6 +21,8 @@
 #include <cstdint>
 #include <cmath>
 
+#include <arpa/inet.h>
+
 /* Typedefs -------------------------------------------- */
 typedef enum _metaDataCodes {
     MD_CODE_PERSISTENT_ID = 'mper',
