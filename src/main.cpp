@@ -10,8 +10,6 @@
 #include "NamedPipe.hpp"
 #include "LiteralConverter.hpp"
 
-#include <opencv2/opencv.hpp>
-
 #include <fstream>
 #include <iostream>
 
@@ -56,7 +54,7 @@ int main(const int argc, const char * const * const argv) {
     /* Initializing MetaDataReader */
     metadata::MetaDataReader lMetaDataReader(&lFileStream);
 
-    /* Initializing OpenCV for Artwork */
+    /* Initializing main variables */
     bool lBase64ReadSuccess = false;
 
     std::cout << "[INFO ] Starting main loop... " << std::endl;

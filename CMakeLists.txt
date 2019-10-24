@@ -107,11 +107,6 @@ set(BUILD_VERSION ${GIT_COMMIT_HASH} CACHE STRING "Build version" FORCE)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 include_directories(${CMAKE_SOURCE_DIR}/inc)
 
-find_package(OpenCV REQUIRED)
-include_directories(${OpenCV_INCLUDE_DIRS})
-message("OpenCV_INCLUDE_DIRS : ${OpenCV_INCLUDE_DIRS}")
-message("OpenCV_LIBS : ${OpenCV_LIBS}")
-
 #------------------------------------------------------------------------------
 # Sub-directories 
 #------------------------------------------------------------------------------

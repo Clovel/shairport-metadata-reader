@@ -46,6 +46,3 @@ add_executable(tests_${PROJECT_NAME}
     ${TEST_SOURCES}
     ${SOURCES}
 )
-target_link_libraries(tests_${PROJECT_NAME}
-    ${OpenCV_LIBS}
-)
